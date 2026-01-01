@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>CANDY</title>
 
-<!-- Icons -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 * {
@@ -18,9 +18,6 @@
 body {
     height: 100vh;
     background: #14243a;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     color: #fff;
     overflow: hidden;
 }
@@ -31,7 +28,7 @@ body {
     position: relative;
 }
 
-/* ===== HUD CIRCLE ===== */
+/* ================= HUD ================= */
 .hud {
     position: absolute;
     top: 35%;
@@ -83,18 +80,18 @@ body {
     background: rgba(0, 200, 255, 0.15);
     box-shadow: 0 0 20px rgba(0, 200, 255, 1);
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
 }
 
 .core span {
-    font-weight: bold;
     letter-spacing: 2px;
+    font-weight: bold;
     color: #e6fbff;
     text-shadow: 0 0 10px #00c8ff;
 }
 
-/* ===== TEXT ===== */
+/* ================= PROMPT ================= */
 .prompt {
     position: absolute;
     bottom: 120px;
@@ -102,9 +99,15 @@ body {
     text-align: center;
     font-size: 18px;
     opacity: 0.9;
+    transition: transform 0.6s ease, opacity 0.6s ease;
 }
 
-/* ===== INPUT BAR ===== */
+.prompt.hide {
+    transform: translateX(200px);
+    opacity: 0;
+}
+
+/* ================= CHAT BAR ================= */
 .chat-bar {
     position: absolute;
     bottom: 30px;
@@ -119,10 +122,10 @@ body {
     box-shadow: 0 0 12px rgba(140, 0, 255, 0.9);
     display: flex;
     align-items: center;
-    padding: 0 15px;
+    padding: 0 16px;
 }
 
-/* Input text */
+/* Input */
 .chat-bar input {
     flex: 1;
     background: transparent;
@@ -144,8 +147,8 @@ body {
 }
 
 .icons i {
-    color: #e5e5ff;
     font-size: 18px;
+    color: #e5e5ff;
     cursor: pointer;
     transition: 0.3s;
 }
@@ -155,7 +158,7 @@ body {
     text-shadow: 0 0 8px #b366ff;
 }
 
-/* ===== ANIMATION ===== */
+/* ================= ANIMATION ================= */
 @keyframes rotate {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
@@ -171,7 +174,6 @@ body {
         <div class="ring outer"></div>
         <div class="ring middle"></div>
         <div class="ring inner"></div>
-
         <div class="core">
             <span>CANDY</span>
         </div>
@@ -179,7 +181,6 @@ body {
 
     <div class="prompt">Ask me anything</div>
 
-    <!-- CHAT INPUT BAR -->
     <div class="chat-bar">
         <input type="text" placeholder="Type here..." />
         <div class="icons">
@@ -190,6 +191,21 @@ body {
     </div>
 
 </div>
+
+<script>
+    const input = document.querySelector(".chat-bar input");
+    const prompt = document.querySelector(".prompt");
+
+    input.addEventListener("focus", () => {
+        prompt.classList.add("hide");
+    });
+
+    input.addEventListener("blur", () => {
+        if (input.value.trim() === "") {
+            prompt.classList.remove("hide");
+        }
+    });
+</script>
 
 </body>
 </html>
