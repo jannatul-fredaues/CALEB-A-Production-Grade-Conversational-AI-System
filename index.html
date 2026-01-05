@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>CANDY</title>
 
-<!-- Font Awesome Icons -->
+<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
@@ -156,6 +156,24 @@ body {
     text-shadow: 0 0 8px #b366ff;
 }
 
+/* ================= LISTENING ANIMATION ================= */
+.listening .ring {
+    animation: pulse 1.2s ease-in-out infinite;
+    border-color: #ff4dff;
+    box-shadow: 0 0 25px #ff4dff;
+}
+
+.listening .core {
+    box-shadow: 0 0 35px #ff4dff;
+    background: rgba(255, 77, 255, 0.25);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.08) rotate(180deg); }
+    100% { transform: scale(1) rotate(360deg); }
+}
+
 @keyframes rotate {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
@@ -167,7 +185,7 @@ body {
 
 <div class="container">
 
-    <div class="hud">
+    <div class="hud" id="hud">
         <div class="ring outer"></div>
         <div class="ring middle"></div>
         <div class="ring inner"></div>
@@ -193,19 +211,15 @@ body {
 const input = document.querySelector(".chat-bar input");
 const prompt = document.querySelector(".prompt");
 const micBtn = document.getElementById("mic");
+const hud = document.getElementById("hud");
 
-// Hide prompt on focus
-input.addEventListener("focus", () => {
-    prompt.classList.add("hide");
-});
-
+/* Prompt hide/show */
+input.addEventListener("focus", () => prompt.classList.add("hide"));
 input.addEventListener("blur", () => {
-    if (input.value.trim() === "") {
-        prompt.classList.remove("hide");
-    }
+    if (input.value.trim() === "") prompt.classList.remove("hide");
 });
 
-// ================= VOICE RECOGNITION =================
+/* ================= VOICE RECOGNITION ================= */
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -213,26 +227,34 @@ const recognition = new SpeechRecognition();
 recognition.lang = "en-US";
 recognition.continuous = false;
 
+/* Start listening */
 micBtn.addEventListener("click", () => {
     recognition.start();
+    hud.classList.add("listening");
 });
 
-recognition.onresult = async (event) => {
+/* Voice result */
+recognition.onresult = (event) => {
     const text = event.results[0][0].transcript.toLowerCase();
     input.value = text;
     sendToBackend(text);
 };
 
-// ================= SEND TO BACKEND =================
-async function sendToBackend(text) {
-    await fetch("http://127.0.0.1:5000/command", {
+/* Stop animation */
+recognition.onend = () => {
+    hud.classList.remove("listening");
+};
+
+/* ================= SEND TO BACKEND ================= */
+function sendToBackend(text) {
+    fetch("http://127.0.0.1:5000/command", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text })
     });
 }
 
-// ================= TEXT COMMAND =================
+/* ================= TEXT INPUT ================= */
 input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
         const text = input.value;

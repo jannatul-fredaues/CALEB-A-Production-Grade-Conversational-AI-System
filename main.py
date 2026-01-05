@@ -8,7 +8,7 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# === Voice Output ===
+# ================= VOICE OUTPUT =================
 engine = pyttsx3.init()
 engine.setProperty("rate", 170)
 
@@ -16,41 +16,93 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-@app.route("/command", methods=["POST"])
-def command():
-    data = request.json
-    text = data.get("text", "").lower()
+# ================= ASSISTANT STATE =================
+assistant_awake = False
+conversation_memory = []
 
-    print("Received:", text)
+# ================= COMMAND HANDLER =================
+def handle_command(text):
+    global assistant_awake
 
-    # Wake word
-    if "candy" in text:
-        speak("Hi master")
-        return jsonify({"reply": "Hi master"})
-
-    # Commands
+    # TIME
     if "time" in text:
-        time = datetime.datetime.now().strftime("%I:%M %p")
-        speak(f"The time is {time}")
-        return jsonify({"reply": time})
+        return f"The time is {datetime.datetime.now().strftime('%I:%M %p')}"
 
+    # DATE
+    if "date" in text:
+        return f"Today is {datetime.datetime.now().strftime('%A, %d %B %Y')}"
+
+    # OPEN WEBSITES
     if "open google" in text:
-        speak("Opening Google")
         webbrowser.open("https://google.com")
-        return jsonify({"reply": "Opening Google"})
+        return "Opening Google"
 
     if "open youtube" in text:
-        speak("Opening YouTube")
         webbrowser.open("https://youtube.com")
-        return jsonify({"reply": "Opening YouTube"})
+        return "Opening YouTube"
 
+    # SYSTEM COMMANDS
     if "shutdown" in text:
-        speak("Shutting down system")
-        os.system("shutdown /s /t 1")
-        return jsonify({"reply": "Shutting down"})
+        return "Shutdown command received. Permission required."
 
-    speak("Sorry master, I did not understand")
-    return jsonify({"reply": "Unknown command"})
+    if "restart" in text:
+        return "Restart command received. Permission required."
 
+    # MEMORY
+    if "what did i say" in text:
+        if conversation_memory:
+            return "You said: " + ", ".join(conversation_memory[-3:])
+        return "You haven't said anything yet"
+
+    # FALLBACK (AI READY)
+    return "I heard you, master, but I need more training for that."
+
+# ================= API ENDPOINT =================
+@app.route("/command", methods=["POST"])
+def command():
+    global assistant_awake
+
+    data = request.json
+    text = data.get("text", "").lower().strip()
+
+    print("USER:", text)
+
+    if not text:
+        return jsonify({"reply": "No input received", "awake": assistant_awake})
+
+    conversation_memory.append(text)
+
+    # WAKE WORD
+    if "candy" in text and not assistant_awake:
+        assistant_awake = True
+        reply = "Hi master"
+        speak(reply)
+        return jsonify({"reply": reply, "awake": assistant_awake})
+
+    # IGNORE COMMANDS IF SLEEPING
+    if not assistant_awake:
+        return jsonify({
+            "reply": "Say 'Candy' to wake me up",
+            "awake": assistant_awake
+        })
+
+    # HANDLE COMMAND
+    reply = handle_command(text)
+    speak(reply)
+
+    # GO BACK TO SLEEP
+    assistant_awake = False
+
+    return jsonify({
+        "reply": reply,
+        "awake": assistant_awake
+    })
+
+# ================= HOME (OPTIONAL) =================
+@app.route("/")
+def home():
+    return "Candy backend is running"
+
+# ================= RUN =================
 if __name__ == "__main__":
     app.run(debug=True)
