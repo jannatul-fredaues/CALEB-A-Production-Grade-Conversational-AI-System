@@ -85,6 +85,8 @@ body {
     text-shadow: 0 0 10px #00c8ff;
 }
 
+
+
 /* ================= PROMPT ================= */
 .prompt {
     position: absolute;
@@ -180,6 +182,27 @@ body {
     color: #a5a5ff;
 }
 
+#sendBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,200,255,0.8);
+    color: #02121f;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 12px rgba(0,200,255,0.9);
+    transition: 0.25s;
+}
+
+#sendBtn:hover {
+    transform: scale(1.1);
+    background: #00e5ff;
+}
+
+
 /* ================= HISTORY PANEL ================= */
 .history-panel {
     position: absolute;
@@ -228,8 +251,46 @@ body {
 
 @keyframes rotate {
     from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+     to { transform: rotate(360deg); }
 }
+
+/* ===== THINKING PULSE ===== */
+.core.thinking {
+    animation: pulse 1.4s ease-in-out infinite;
+    box-shadow: 0 0 35px rgba(0,200,255,1);
+}
+
+/* ===== PURPLE THINKING MODE ===== */
+.hud.thinking .ring {
+    border-color: rgba(180, 90, 255, 0.7);
+    box-shadow: 0 0 18px rgba(180, 90, 255, 0.9);
+}
+
+.hud.thinking .core {
+    background: rgba(180, 90, 255, 0.25);
+    box-shadow: 0 0 40px rgba(180, 90, 255, 1);
+}
+
+.hud.thinking .core span {
+    color: #f0dbff;
+    text-shadow: 0 0 12px rgba(180, 90, 255, 1);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 15px rgba(0,200,255,0.6);
+    }
+    50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 40px rgba(0,200,255,1);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 15px rgba(0,200,255,0.6);
+    }
+}
+
 </style>
 </head>
 
@@ -258,8 +319,12 @@ body {
     </div>
 
     <div class="chat-bar">
-        <input type="text" id="input" placeholder="Message CALEB..." />
-    </div>
+    <input type="text" id="input" placeholder="Message to CALEB..." />
+    <button id="sendBtn">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+</div>
+
 
     <!-- History -->
     <div class="history-panel">
@@ -275,9 +340,13 @@ const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 const historyEl = document.getElementById("history");
 const suggestions = document.getElementById("suggestions");
+const hud = document.querySelector(".hud");
+const beep = document.getElementById("thinkingBeep");
 
 let chats = JSON.parse(localStorage.getItem("caleb_chats")) || [];
 let current = chats.length ? chats.length - 1 : createChat();
+
+const core = document.querySelector(".core");
 
 function createChat() {
     chats.push({ title: "New Chat", messages: [] });
@@ -344,6 +413,7 @@ input.addEventListener("keydown", async e => {
         save();
         renderHistory();
 
+        
         const res = await fetch("http://127.0.0.1:5000/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -358,10 +428,61 @@ input.addEventListener("keydown", async e => {
 });
 
 
+const sendBtn = document.getElementById("sendBtn");
+
+function sendMessage() {
+    if (!input.value.trim()) return;
+
+    const text = input.value;
+    input.value = "";
+
+    chats[current].messages.push({ role: "user", content: text });
+
+    if (chats[current].messages.length === 1) {
+        chats[current].title = text.slice(0, 18);
+        suggestions.style.display = "none";
+    }
+
+    renderChat();
+    save();
+    renderHistory();
+
+    hud.classList.add("thinking");
+        core.classList.add("thinking");
+        beep.currentTime = 0;
+        beep.volume = 0.4;
+        beep.play();
+    fetch("http://127.0.0.1:5000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+    })
+    .then(res => res.json())
+    .then(data => {
+        chats[current].messages.push({
+            role: "assistant",
+            content: data.content
+        });
+        renderChat();
+        save();
+        hud.classList.remove("thinking");
+        core.classList.remove("thinking");
+        beep.pause();
+        
+    });
+}
+
+sendBtn.onclick = sendMessage;
+
+
 
 renderHistory();
 renderChat();
 </script>
+
+<audio id="thinkingBeep" loop>
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-interface-zoom-890.mp3" type="audio/mpeg">
+</audio>
 
 </body>
 </html>
