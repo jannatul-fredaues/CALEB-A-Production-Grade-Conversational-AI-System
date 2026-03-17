@@ -13,4 +13,4 @@ Technologies Used:
 3. Basic HTML+CSS
 
 Purpose:
-The chatbot can be used for learning, customer support, or as a foundation for building advanced conversational AI systems.
+The chatbot can be used for learning, customer support, or as a foundation for building advanced conversational AI systems
