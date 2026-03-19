@@ -80,6 +80,9 @@ def stream_llm(user_text):
 
 print("API KEY =", os.getenv("gsk_oCVdM8rfLd0aadSwW3aAWGdyb3FYlovj5k65i6J0TaqeCP1o9DiIY"))
 
+# --------------------
+# Routes
+# --------------------
 
 @app.route("/chat-stream", methods=["GET", "POST"])
 def chat_stream():
@@ -102,5 +105,5 @@ def reset():
 # Main
 # --------------------
 if __name__ == "__main__":
-    print("🚀 CALEB backend running at http://127.0.0.1:5000")
+    print("CALEB backend running at http://127.0.0.1:5000")
     app.run(debug=True, threaded=True)
