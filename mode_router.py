@@ -8,6 +8,7 @@ import os
 # --------------------
 # Groq Client
 # --------------------
+
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 DEFAULT_MODE = "general"
@@ -27,6 +28,7 @@ Reply with ONLY ONE WORD from the list above.
 # --------------------
 # Mode Detection
 # --------------------
+
 def detect_mode(text: str) -> str:
     try:
         response = client.chat.completions.create(
@@ -53,5 +55,6 @@ def detect_mode(text: str) -> str:
 # --------------------
 # System Prompt Getter
 # --------------------
+
 def get_system_prompt(mode: str) -> str:
     return MODES.get(mode, MODES[DEFAULT_MODE])
