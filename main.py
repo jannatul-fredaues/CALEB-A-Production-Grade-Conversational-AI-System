@@ -28,6 +28,7 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 # --------------------
 # Flask App
 # --------------------
+
 app = Flask(__name__)
 CORS(app)
 
@@ -79,9 +80,7 @@ def stream_llm(user_text):
 
 print("API KEY =", os.getenv("gsk_oCVdM8rfLd0aadSwW3aAWGdyb3FYlovj5k65i6J0TaqeCP1o9DiIY"))
 
-# --------------------
-# Routes
-# --------------------
+
 @app.route("/chat-stream", methods=["GET", "POST"])
 def chat_stream():
     data = request.get_json()
