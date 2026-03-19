@@ -29,7 +29,7 @@ Reply with ONLY ONE WORD from the list above.
 # Mode Detection
 # --------------------
 
-def detect_mode(text: str) -> str:
+def detect_mode(text: str) ->str:
     try:
         response = client.chat.completions.create(
             model="llama-3.1-8b-instant",
