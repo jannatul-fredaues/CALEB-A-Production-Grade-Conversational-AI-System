@@ -14,3 +14,4 @@ Technologies Used:
 
 Purpose:
 The chatbot can be used for learning, customer support, or as a foundation for building advanced conversational AI systems
+that can answer by searching through internet.
