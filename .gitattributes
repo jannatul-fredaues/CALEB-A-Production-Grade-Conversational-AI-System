@@ -1,0 +1,11 @@
+# Ignore frontend languages
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.js linguist-detectable=false
+
+# If you used React / modern UI
+*.jsx linguist-detectable=false
+*.tsx linguist-detectable=false
+
+# If you have config-heavy files
+*.json linguist-detectable=false
